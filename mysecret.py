@@ -4,7 +4,7 @@ import requests
 response = requests.get("https://example.com")
 print(response.text)
 
-# testing
+# lets see if it detect this
 aws_access_key = "AKIAIOSFODNN7EXAMPLE"
 aws_secret_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 
