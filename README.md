@@ -46,6 +46,6 @@ Ofcourse other installation guides could be included but for the sake of time I 
 In this section you would put down examples of how/when to use this coding.
 For example:
 
-This project can be used to showcase my abilities in github
+This project can be used to showcase my abilities in github :)
 
 
