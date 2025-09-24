@@ -8,6 +8,10 @@ on:
 jobs:
   compliance-check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      actions: write
     steps:
       - name: Install GitHub CLI
         run: sudo apt-get update && sudo apt-get install gh -y
