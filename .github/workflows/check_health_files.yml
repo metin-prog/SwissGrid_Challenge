@@ -1,42 +1,42 @@
-name: Check Community Health Files
+name: Enforce Community Health Files
 
 on:
-  repository:
-    types: [created] 
   schedule:
-    - cron: "0 0 * * *" 
+    - cron: "0 1 * * *"  # Run nightly
+  workflow_dispatch:
 
 jobs:
-  check-health-files:
+  compliance-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout compliance repo
-        uses: actions/checkout@v3
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh -y
 
-      - name: Verify required files
-        env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.ORG_ADMIN_TOKEN }}" | gh auth login --with-token
+
+      - name: Get all repos in org
         run: |
-          REPO="${{ github.event.repository.full_name }}"
-          echo "Checking repository: $REPO"
+          gh repo list my-org --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
 
-          REQUIRED_FILES=("README.md" "CONTRIBUTING.md" "CODE_OF_CONDUCT.md" "SECURITY.md" "SUPPORT.md")
+      - name: Check required files
+        run: |
+          REQUIRED_FILES=("README.md" "CONTRIBUTING.md" "CODE_OF_CONDUCT.md" "SECURITY.md")
 
-          missing_files=()
+          while read repo; do
+            echo "Checking $repo..."
+            missing=()
+            for file in "${REQUIRED_FILES[@]}"; do
+              gh api repos/$repo/contents/$file >/dev/null 2>&1 || missing+=("$file")
+            done
 
-          for file in "${REQUIRED_FILES[@]}"; do
-            status=$(gh api repos/$REPO/contents/$file --silent || echo "404")
-            if [[ "$status" == "404" ]]; then
-              missing_files+=("$file")
+            if [ ${#missing[@]} -ne 0 ]; then
+              echo "$repo missing: ${missing[*]}"
+              gh api -X PATCH repos/$repo -f archived=true
+              gh issue create --repo $repo \
+                --title "Missing Community Health Files" \
+                --body "This repository is missing: ${missing[*]}"
+            else
+              echo "$repo is compliant"
             fi
-          done
-
-          if [ ${#missing_files[@]} -ne 0 ]; then
-            echo "Missing files in $REPO: ${missing_files[*]}"
-
-            gh api -X PATCH repos/$REPO -f archived=true
-
-            exit 1
-          else
-            echo "All required health files are present."
-          fi
+          done < repos.txt
