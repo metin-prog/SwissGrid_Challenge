@@ -1,7 +1,8 @@
 ## About The Project
 
 Quickly explain what the project is about and the purpose of this project etc.
-for example:
+
+For example:
 This project is to show Swissgrid why they should hire me :) 
 
 ### Built With
