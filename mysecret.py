@@ -1,11 +1,19 @@
 import requests
+import sqlite3
 
-# testing again
-response = requests.get("https://example.com")
-print(response.text)
+# Connect to an in-memory database
+conn = sqlite3.connect(":memory:")
+cursor = conn.cursor()
 
-# lets see if it detect this
-aws_access_key = "AKIAIOSFODNN7EXAMPLE"
-aws_secret_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+# Create a simple table
+cursor.execute("CREATE TABLE users (id INTEGER, username TEXT)")
 
-print(f"Using AWS key: {aws_access_key}")
+# Simulate untrusted user input
+user_input = "1 OR 1=1"
+
+# SECURITY VULNERABILITY: SQL Injection
+query = f"SELECT * FROM users WHERE id = {user_input}"
+cursor.execute(query)
+results = cursor.fetchall()
+
+print(f"Query results: {results}")
