@@ -1,5 +1,4 @@
-user_input = input("Enter something: ")
+import requests
 
-result = eval(user_input)
-
-print(f"Result: {result}")
+response = requests.get("https://example.com")
+print(response.text)
