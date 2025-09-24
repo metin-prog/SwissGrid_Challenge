@@ -44,6 +44,8 @@ Ofcourse other installation guides could be included but for the sake of time I 
 ## Usage
 
 In this section you would put down examples of how/when to use this coding.
+For example:
 
+This project is to show SwissGrid why they should hire me :)
 _For more examples, please refer to the [Documentation](https://example.com)_
 
