@@ -21,6 +21,7 @@ jobs:
 
       - name: Check required files
         run: |
+          set -x
           REQUIRED_FILES=("README.md" "CONTRIBUTING.md" "CODE_OF_CONDUCT.md" "SECURITY.md")
 
           while read repo; do
