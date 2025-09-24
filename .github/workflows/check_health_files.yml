@@ -10,34 +10,53 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install GitHub CLI
-        run: sudo apt-get install gh -y
+        run: sudo apt-get update && sudo apt-get install gh -y
 
       - name: Authenticate GitHub CLI
-        run: echo "${{ secrets.ORG_ADMIN_TOKEN }}" | gh auth login --with-token
-
-      - name: Get all repos in org
+        env:
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
         run: |
-          gh repo list my-org --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
+          echo "$GH_TOKEN" | gh auth login --with-token
 
-      - name: Check required files
+      - name: List all org repos
+        run: |
+          gh repo list my-org --limit 500 --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
+          echo "Found $(wc -l < repos.txt) repositories."
+
+      - name: Check required community health files
         run: |
           set -x
           REQUIRED_FILES=("README.md" "CONTRIBUTING.md" "CODE_OF_CONDUCT.md" "SECURITY.md")
+          echo "Repository,Missing Files,Status" > compliance-report.csv
 
-          while read repo; do
+          cat repos.txt | while read repo; do
             echo "Checking $repo..."
             missing=()
+
             for file in "${REQUIRED_FILES[@]}"; do
               gh api repos/$repo/contents/$file >/dev/null 2>&1 || missing+=("$file")
             done
 
             if [ ${#missing[@]} -ne 0 ]; then
               echo "$repo missing: ${missing[*]}"
+              # Archive the repo (hard enforcement)
               gh api -X PATCH repos/$repo -f archived=true
+              # Create an issue to notify the owner
               gh issue create --repo $repo \
                 --title "Missing Community Health Files" \
-                --body "This repository is missing: ${missing[*]}"
+                --body "This repository has been archived because it is missing: ${missing[*]}"
+              # Add to CSV report
+              echo "$repo,${missing[*]},Non-Compliant" >> compliance-report.csv
             else
               echo "$repo is compliant"
+              echo "$repo,,Compliant" >> compliance-report.csv
             fi
-          done < repos.txt
+          done
+
+      # Upload compliance report as artifact
+      - name: Upload compliance report
+        uses: actions/upload-artifact@v3
+        with:
+          name: compliance-report
+          path: compliance-report.csv
+
