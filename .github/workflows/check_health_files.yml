@@ -13,13 +13,13 @@ jobs:
       issues: write
       actions: write
     steps:
-      #- name: Install GitHub CLI
-        #run: sudo apt-get update && sudo apt-get install gh -y
+      - name: Install GitHub CLI
+        run: sudo apt-get update && sudo apt-get install gh -y
 
-      #- name: Authenticate GitHub CLI
-        #env:
-          #GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
-        #run: |
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.admin_token }}
+        run: |
           #echo "$GH_TOKEN" | gh auth login --with-token
 
       - name: List all org repos
