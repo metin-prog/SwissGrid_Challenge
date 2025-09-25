@@ -21,7 +21,7 @@ jobs:
       - name: Detect vulnerable GitHub Actions
         run: |
           ORG="metin-prog"   
-          echo "Repo's" > compliance-report.csv
+          echo "Repo's with buggy action" > compliance-report.csv
           echo "Listing repositories in $ORG..."
           gh repo list $ORG --json nameWithOwner -L 500 -q '.[].nameWithOwner' > repos.txt
 
