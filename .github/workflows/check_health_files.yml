@@ -1,5 +1,8 @@
 name: Enforce Community Health Files
 
+on:
+ workflow_dispatch:
+
 jobs:
   compliance-check:
     runs-on: ubuntu-latest
@@ -15,7 +18,7 @@ jobs:
 
       - name: List all org repos
         run: |
-          gh repo list my-org --limit 500 --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
+          gh repo list metin-prog --limit 500 --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
           echo "Found $(wc -l < repos.txt) repositories."
 
       - name: Check required community health files
