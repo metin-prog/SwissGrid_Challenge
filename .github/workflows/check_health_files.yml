@@ -24,7 +24,7 @@ jobs:
 
       - name: List all org repos
         run: |
-          gh repo list metin-prog --visibility private --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
+          gh repo list metin-prog --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
           echo "Found $(wc -l < repos.txt) repositories."
 
       - name: Check required community health files
