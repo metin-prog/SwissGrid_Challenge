@@ -21,7 +21,7 @@ jobs:
       - name: Detect vulnerable GitHub Actions
         run: |
           ORG="metin-prog"   
-
+          echo "Repo's" > compliance-report.csv
           echo "Listing repositories in $ORG..."
           gh repo list $ORG --json nameWithOwner -L 500 -q '.[].nameWithOwner' > repos.txt
 
@@ -32,7 +32,7 @@ jobs:
 
             if echo "$workflows" | grep -q "buggy-actions_expose-passwords"; then
               echo "Found vulnerable action in $repo"
-              echo "$repo" > compliance-report.csv
+              echo "$repo" >> compliance-report.csv
               FOUND=$((FOUND+1))
             fi
           done < repos.txt
