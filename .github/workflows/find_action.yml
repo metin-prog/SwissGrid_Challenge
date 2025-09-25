@@ -43,6 +43,7 @@ jobs:
             echo "Found $FOUND repositories using buggy-actions_expose-passwords"
           fi
       - name: Upload compliance report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: compliance-report
