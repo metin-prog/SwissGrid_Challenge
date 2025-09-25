@@ -1,0 +1,8 @@
+gh repo list metin-prog --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
+
+while read repo; do
+  echo "Checking $repo..."
+  gh api repos/$repo/contents/.github/workflows \
+    --jq '.[].name' 2>/dev/null | grep -q "buggy-actions/expose-passwords" && \
+    echo "Found in $repo"
+done < repos.txt
