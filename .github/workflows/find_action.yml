@@ -30,7 +30,7 @@ jobs:
             echo "Checking $repo..."
             workflows=$(gh api repos/$repo/contents/.github/workflows --jq '.[].name' 2>/dev/null || true)
 
-            if echo "$workflows" | grep -q "buggy-actions_expose-passwords.yml"; then
+            if echo "$workflows" | grep -q "buggy-actions_expose-passwords"; then
               echo "Found vulnerable action in $repo"
               FOUND=$((FOUND+1))
             fi
