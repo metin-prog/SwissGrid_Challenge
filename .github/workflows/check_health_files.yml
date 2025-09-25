@@ -42,11 +42,11 @@ jobs:
             if [ ${#missing[@]} -ne 0 ]; then
               echo "$repo missing: ${missing[*]}"
               
-              gh api -X PATCH repos/$repo -f archived=true
+              gh api -X PATCH repos/$repo -f archived=true || true
               
               gh issue create --repo $repo \
                 --title "Missing Community Health Files" \
-                --body "This repository has been archived because it is missing: ${missing[*]}"
+                --body "This repository has been archived because it is missing: ${missing[*]}" || true
              
               echo "$repo,${missing[*]},Non-Compliant" >> compliance-report.csv
             else
