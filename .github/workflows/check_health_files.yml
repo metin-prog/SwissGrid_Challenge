@@ -3,6 +3,10 @@ name: Enforce Community Health Files
 on:
  workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: write
+  
 jobs:
   compliance-check:
     runs-on: ubuntu-latest
