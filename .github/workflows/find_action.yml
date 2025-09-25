@@ -26,15 +26,15 @@ jobs:
             echo "Checking $repo..."
             workflows=$(gh api repos/$repo/contents/.github/workflows --jq '.[].name' 2>/dev/null || true)
 
-            if echo "$workflows" | grep -q "buggy-actions/expose-passwords"; then
-              echo "⚠️ Found vulnerable action in $repo"
+            if echo "$workflows" | grep -q "buggy-actions_expose-passwords"; then
+              echo "Found vulnerable action in $repo"
               FOUND=$((FOUND+1))
             fi
           done < repos.txt
 
           if [ $FOUND -eq 0 ]; then
-            echo "No repositories found using buggy-actions/expose-passwords"
+            echo "No repositories found usingbuggy-actions_expose-passwords"
           else
-            echo "Found $FOUND repositories using buggy-actions/expose-passwords"
-            exit 1  # Fail workflow so security team notices
+            echo "Found $FOUND repositories using buggy-actions_expose-passwords"
+            exit 1
           fi
