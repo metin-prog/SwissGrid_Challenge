@@ -17,10 +17,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install gh -y
 
       - name: Authenticate GitHub CLI
-        env:
-          GH_TOKEN: ${{ secrets.admin_token }}
         run: |
-          #echo "$GH_TOKEN" | gh auth login --with-token
+          #echo "$GH_TOKEN" | gh auth login --with-token <<< "${{ secrets.ORG_ADMIN_TOKEN }}"
 
       - name: List all org repos
         run: |
