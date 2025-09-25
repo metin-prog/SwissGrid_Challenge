@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
   #schedule:
     #- cron: "0 2 * * *" 
+permissions:
+  contents: read
+  actions: write
+  
 jobs:
   scan-repos:
     runs-on: ubuntu-latest
