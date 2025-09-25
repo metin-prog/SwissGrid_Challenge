@@ -1,26 +1,21 @@
 name: Enforce Community Health Files
 
-on:
-  schedule:
-    - cron: "0 1 * * *"  # Run nightly
-  workflow_dispatch:
-
 jobs:
   compliance-check:
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.admin_token }}
-
     steps:
       - name: Install GitHub CLI
         run: sudo apt-get update && sudo apt-get install gh -y
 
-      - name: Verify auth
-        run: gh auth status
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+        run: |
+          echo "$GH_TOKEN" | gh auth login --with-token
 
       - name: List all org repos
         run: |
-          gh repo list metin-prog --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
+          gh repo list my-org --limit 500 --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
           echo "Found $(wc -l < repos.txt) repositories."
 
       - name: Check required community health files
@@ -39,24 +34,22 @@ jobs:
 
             if [ ${#missing[@]} -ne 0 ]; then
               echo "$repo missing: ${missing[*]}"
-              # Archive the repo (hard enforcement)
+              
               gh api -X PATCH repos/$repo -f archived=true
-              # Create an issue to notify the owner
+              
               gh issue create --repo $repo \
                 --title "Missing Community Health Files" \
                 --body "This repository has been archived because it is missing: ${missing[*]}"
-              # Add to CSV report
+             
               echo "$repo,${missing[*]},Non-Compliant" >> compliance-report.csv
             else
               echo "$repo is compliant"
               echo "$repo,,Compliant" >> compliance-report.csv
             fi
           done
-
-      # Upload compliance report as artifact
+          
       - name: Upload compliance report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: compliance-report
           path: compliance-report.csv
-
