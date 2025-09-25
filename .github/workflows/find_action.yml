@@ -1,8 +1,40 @@
-gh repo list metin-prog --json nameWithOwner -q '.[].nameWithOwner' > repos.txt
+name: Detect Vulnerable Actions
 
-while read repo; do
-  echo "Checking $repo..."
-  gh api repos/$repo/contents/.github/workflows \
-    --jq '.[].name' 2>/dev/null | grep -q "buggy-actions/expose-passwords" && \
-    echo "Found in $repo"
-done < repos.txt
+on:
+  workflow_dispatch:
+  #schedule:
+    #- cron: "0 2 * * *" 
+jobs:
+  scan-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh jq
+
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.ORG_ADMIN_TOKEN }}" | gh auth login --with-token
+
+      - name: Detect vulnerable GitHub Actions
+        run: |
+          ORG="metin-prog"   
+
+          echo "Listing repositories in $ORG..."
+          gh repo list $ORG --json nameWithOwner -L 500 -q '.[].nameWithOwner' > repos.txt
+
+          FOUND=0
+          while read repo; do
+            echo "Checking $repo..."
+            workflows=$(gh api repos/$repo/contents/.github/workflows --jq '.[].name' 2>/dev/null || true)
+
+            if echo "$workflows" | grep -q "buggy-actions/expose-passwords"; then
+              echo "⚠️ Found vulnerable action in $repo"
+              FOUND=$((FOUND+1))
+            fi
+          done < repos.txt
+
+          if [ $FOUND -eq 0 ]; then
+            echo "No repositories found using buggy-actions/expose-passwords"
+          else
+            echo "Found $FOUND repositories using buggy-actions/expose-passwords"
+            exit 1  # Fail workflow so security team notices
+          fi
