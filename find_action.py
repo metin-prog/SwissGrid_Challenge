@@ -7,14 +7,12 @@ import base64
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-
 class Contributor:
     def __init__(self, name: str):
         self.name = name
 
     def __repr__(self):
         return self.name
-
 
 class Repository:
     def __init__(self, name: str):
@@ -25,7 +23,6 @@ class Repository:
 
     def mark_vulnerable(self, workflow_file: str):
         self.vulnerable_workflows.append(workflow_file)
-
 
 class GitHubScanner:
     def __init__(self, org: str, token: str):
